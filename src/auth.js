@@ -8,6 +8,7 @@ function getAuthToken() {
         err.status = res.status;
         throw err;
       }
+      console.log(res);
       return res.data.token.access_token;
     });
 }
