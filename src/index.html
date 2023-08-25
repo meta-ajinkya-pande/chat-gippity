@@ -99,10 +99,21 @@
 
         // Function to add a new message to the messages container
         function addMessage(message) {
-            console.log(message);
-            const messageElement = document.createElement('pre');
-            messageElement.textContent = message;
-            messagesContainer.appendChild(messageElement);
+            let messageContentArray = message.content.split("```");
+            console.log(messageContentArray);
+            for(let i=0; i < messageContentArray.length; i++) {
+                if(i%2 == 0) {
+                    const messageElement = document.createElement('pre');
+                    messageElement.textContent = messageContentArray[i];
+                    messagesContainer.appendChild(messageElement);
+                } else {
+                    const preElement = document.createElement('pre');
+                    const codeElement = document.createElement('code');
+                    codeElement.textContent = messageContentArray[i];
+                    preElement.appendChild(codeElement);
+                    messagesContainer.appendChild(preElement);
+                }
+            }
         }
         
         // Event listener for the send button
