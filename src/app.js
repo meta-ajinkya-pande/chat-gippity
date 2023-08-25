@@ -1,4 +1,5 @@
 const express = require('express');
+const path = require('path');
 
 const { getAuthToken } = require('./auth');
 const { processPrompt } = require('./process-prompt');
@@ -6,12 +7,13 @@ const { processPrompt } = require('./process-prompt');
 const app = express();
 app.use(express.json());
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 8080;
 let authToken;
+let messages = [];
 
 async function init() {
   try {
-    authToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6Ii1LSTNROW5OUjdiUm9meG1lWm9YcWJIWkdldyIsImtpZCI6Ii1LSTNROW5OUjdiUm9meG1lWm9YcWJIWkdldyJ9.eyJhdWQiOiIyYTQ1OWRmOS1kOGUxLTQzZTAtOTk4ZS0zMjBhYmJlNTgxZDAiLCJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC81OTg5ZWNlMC1mOTBlLTQwYmYtOWM3OS0xYTdiZWNjZGI4NjEvIiwiaWF0IjoxNjkyODgzMTc3LCJuYmYiOjE2OTI4ODMxNzcsImV4cCI6MTY5Mjg4NzQ1MiwiYWNyIjoiMSIsImFpbyI6IkFWUUFxLzhVQUFBQW5DeEQwQzdHZW40WElEK2F5c0hMeUo4Z1lvOWhINTdvbW1DYi9hbmVDbmpCL1NSQTUrdHlqa2I0T2pYdWs3ckxFM29KUmcxbHA1aC8rVnU5TUgwa1NZMlN1YVJPWk9jWEpuejczQlhSMEJBPSIsImFtciI6WyJwd2QiLCJyc2EiLCJtZmEiXSwiYXBwaWQiOiIyYTQ1OWRmOS1kOGUxLTQzZTAtOTk4ZS0zMjBhYmJlNTgxZDAiLCJhcHBpZGFjciI6IjAiLCJkZXZpY2VpZCI6Ijk4ZmRhZTgwLWY3YTQtNDZlZC1iMDgzLWZiODhlOWE3ZTdhMyIsImZhbWlseV9uYW1lIjoiUGFuZGUiLCJnaXZlbl9uYW1lIjoiQWppbmt5YSIsImdyb3VwcyI6WyI0ZjEyMTNlNS1hMmE0LTQ1ZTAtOTI1ZS1hYjg3MjkxZGI1ODAiXSwiaXBhZGRyIjoiMjAuMjEyLjk5LjYyIiwibmFtZSI6IlBhbmRlLCBBamlua3lhIEVYMSIsIm9pZCI6ImE3MTBmNjU2LTA1N2ItNGQ3ZS1hYTgzLTFmYTQ4NTk3NDUyNCIsIm9ucHJlbV9zaWQiOiJTLTEtNS0yMS0xMzc5ODE3NjQtMTcwOTc4Nzk4OC0yMzExNDU3NzEtNTkwOTgxOSIsInJoIjoiMC5BUWdBNE95SldRNzV2MENjZVJwNzdNMjRZZm1kUlNyaDJPQkRtWTR5Q3J2bGdkQUlBSGcuIiwic2NwIjoiR3JvdXAuUmVhZC5BbGwgR3JvdXBNZW1iZXIuUmVhZC5BbGwgVXNlci5SZWFkIFVzZXIuUmVhZC5BbGwiLCJzdWIiOiJqaHBzVWx2OTJIaEJvdUl5cHJpelZ5aGtKT0c0S3FBb2VQR2J3WGdneGZjIiwidGlkIjoiNTk4OWVjZTAtZjkwZS00MGJmLTljNzktMWE3YmVjY2RiODYxIiwidW5pcXVlX25hbWUiOiJBUGFuZGVAdXMuaW1zaGVhbHRoLmNvbSIsInVwbiI6IkFQYW5kZUB1cy5pbXNoZWFsdGguY29tIiwidXRpIjoiYW91d3RZTGtya0dSV19ZOEphOW5BQSIsInZlciI6IjEuMCJ9.fx9v6YzQPhG6sW_3kwgTEmlkh8KnGYtiywdeQkMzZy0lYPsnjFB6W2yUMR_0ekcvj5dJebTQBacoZCQZ9AtBhCB3ArL8boJLmAjJwtoKMbBM2lW4W3ZCJZmMsx0xQ7Ac4TMkxUh1_7XRixZ1z52DHZel_PXVlGIquZuJ82nMZ_3M-kfq_Pxrbch3hvlIh3QAOUi7_hZTp1uz4EKoPHYXNfV0WCNOOFI5WJhU92yDkzueO_vSbwas8ZkzwRkhXsQqlJvNVxyA1ty_iH3AvQF0gITNwv4LvrAwdb7dIRsSQhr8MaJlaSSXZ7zO0UR4f4hOPMK0zo9W20e1jdZpEgmkMw";
+    authToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6Ii1LSTNROW5OUjdiUm9meG1lWm9YcWJIWkdldyIsImtpZCI6Ii1LSTNROW5OUjdiUm9meG1lWm9YcWJIWkdldyJ9.eyJhdWQiOiIyYTQ1OWRmOS1kOGUxLTQzZTAtOTk4ZS0zMjBhYmJlNTgxZDAiLCJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC81OTg5ZWNlMC1mOTBlLTQwYmYtOWM3OS0xYTdiZWNjZGI4NjEvIiwiaWF0IjoxNjkyOTYzMDczLCJuYmYiOjE2OTI5NjMwNzMsImV4cCI6MTY5Mjk2Nzk0MywiYWNyIjoiMSIsImFpbyI6IkFUUUF5LzhVQUFBQTNLT29HNU1qcnVUQXlIU0JnanhOZWlaZ0Vac2xuL3U0VTdPWVRScGZMNEpHN2VqZ3Y3WEF0MFN2TUhoTHExWXkiLCJhbXIiOlsicHdkIiwid2lhIl0sImFwcGlkIjoiMmE0NTlkZjktZDhlMS00M2UwLTk5OGUtMzIwYWJiZTU4MWQwIiwiYXBwaWRhY3IiOiIwIiwiZmFtaWx5X25hbWUiOiJQYW5kZSIsImdpdmVuX25hbWUiOiJBamlua3lhIiwiZ3JvdXBzIjpbIjRmMTIxM2U1LWEyYTQtNDVlMC05MjVlLWFiODcyOTFkYjU4MCJdLCJpcGFkZHIiOiIyMC4yMTIuOTkuMTUiLCJuYW1lIjoiUGFuZGUsIEFqaW5reWEgRVgxIiwib2lkIjoiYTcxMGY2NTYtMDU3Yi00ZDdlLWFhODMtMWZhNDg1OTc0NTI0Iiwib25wcmVtX3NpZCI6IlMtMS01LTIxLTEzNzk4MTc2NC0xNzA5Nzg3OTg4LTIzMTE0NTc3MS01OTA5ODE5IiwicmgiOiIwLkFRZ0E0T3lKV1E3NXYwQ2NlUnA3N00yNFlmbWRSU3JoMk9CRG1ZNHlDcnZsZ2RBSUFIZy4iLCJzY3AiOiJHcm91cC5SZWFkLkFsbCBHcm91cE1lbWJlci5SZWFkLkFsbCBVc2VyLlJlYWQgVXNlci5SZWFkLkFsbCIsInN1YiI6ImpocHNVbHY5MkhoQm91SXlwcml6Vnloa0pPRzRLcUFvZVBHYndYZ2d4ZmMiLCJ0aWQiOiI1OTg5ZWNlMC1mOTBlLTQwYmYtOWM3OS0xYTdiZWNjZGI4NjEiLCJ1bmlxdWVfbmFtZSI6IkFQYW5kZUB1cy5pbXNoZWFsdGguY29tIiwidXBuIjoiQVBhbmRlQHVzLmltc2hlYWx0aC5jb20iLCJ1dGkiOiJ2ZEdxblk0LWtVcUx3U2NicHR1ckFBIiwidmVyIjoiMS4wIn0.XYYT_dlizy63HATwwiTFcSmBBOP73E-vTCRwyOoY75blC2Et3ds6g-zryMbpjGsc4euTHFLN7ted0bQqLDsY-Ksv9Awbm5QWIqZyXJKGPeCaa_DfrQyGmlg6bjk28_06x6fzuheinCAHY_XZYTx3gSLEti8D0OnkkvucpCA1GNVgIjZpbQsLzvZYL_ccx3fK5ZYsjg3au-Vt9RNKyY_igm8te6dipwwSgCnNuxJGXSq5wW1C-6FfWclmrt40lWPeQexfsBmnKiXLDUN1p22G10IkikJovXR0BhCdSYv5HHtiSpAQlEzhZ89zbjptWKc7-1gCsQ5kKKUTWI_nXCGG1g";
     console.log(authToken);
   } catch (err) {
     console.log(err);
@@ -38,12 +40,29 @@ app.use((req, res, next) => {
 
 app.post('/process-prompt', async (req, res, next) => {
   try {
-    const { input } = req.body;
+    const input = req.body.message;
+    const userjson = {}
+    messages.push(input);
     const promptResponse = await processPrompt(input, authToken);
+    console.log(promptResponse);
+    messages.push(promptResponse.message.content);
     res.json(promptResponse);
   } catch (err) {
     next(err);
   }
+});
+
+app.get('/', async (req, res, next) => {
+  res.sendFile(path.join(__dirname, '/index.html'));
+});
+
+app.get('/messages', (req, res) => {    
+  res.json(messages);
+});
+
+app.get('/clear', (req, res) => {    
+  messages = [];
+  res.json(messages);
 });
 
 app.use((req, res, next) => {
@@ -60,7 +79,7 @@ app.use((error, req, res, next) => {
     });
 });
 
-app.listen(PORT, async () => {
+app.listen(PORT,"10.230.97.67", async () => {
   await init();
   console.log(`Server running on port ${PORT}`);
 });

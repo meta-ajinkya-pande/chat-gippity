@@ -1,0 +1,77 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IQVIA GPT</title>
+</head>
+<body>
+    <h1>IQVIA GPT</h1>
+    <div id="chat">
+        <div id="messages"></div>
+        <input type="text" id="messageInput" placeholder="Type your message">
+        <button id="sendButton">Send</button>
+        <button id="clearMessages">Clear Content</button>
+    </div>
+
+    <script>
+        const messagesContainer = document.getElementById('messages');
+        const messageInput = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
+        const clearButton = document.getElementById('clearMessages');
+
+        const serverUrl = 'http://10.230.97.67:8080'; // Change this to your server's URL
+
+        // Function to add a new message to the messages container
+        function addMessage(message) {
+            const messageElement = document.createElement('pre');
+            messageElement.textContent = message;
+            messagesContainer.appendChild(messageElement);
+        }
+
+        // Event listener for the send button
+        sendButton.addEventListener('click', async () => {
+            const message = messageInput.value;
+            if (message) {
+                let response = await fetch(`${serverUrl}/process-prompt`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ message }),
+                });
+                messageInput.value = '';
+                if(response.ok) {
+                    fetchMessages();
+                } else  {
+                    console.log(response);
+                }
+            }
+        });
+
+        clearButton.addEventListener('click', async () => {
+            let response = await fetch(`${serverUrl}/clear`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+            if(response.ok) {
+                fetchMessages();
+            }
+        });
+
+        // Function to fetch and display messages
+        async function fetchMessages() {
+            messagesContainer.innerHTML = ''; // Clear the messages container
+            const response = await fetch(`${serverUrl}/messages`);
+            const messages = await response.json();
+            messages.forEach(addMessage);
+        }
+
+        // Fetch messages when the page loads
+        fetchMessages();
+    </script>
+</body>
+</html>
