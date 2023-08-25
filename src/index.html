@@ -6,6 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IQVIA GPT</title>
     <style>
+        pre{
+            white-space: pre-wrap;
+        }
 		body {
 		}
 		#chat-container {
@@ -96,6 +99,7 @@
 
         // Function to add a new message to the messages container
         function addMessage(message) {
+            console.log(message);
             const messageElement = document.createElement('pre');
             messageElement.textContent = message;
             messagesContainer.appendChild(messageElement);
