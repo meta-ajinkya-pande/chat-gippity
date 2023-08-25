@@ -4,10 +4,7 @@ function processPrompt(input, authToken) {
   return axios.post(
     'https://openai.work.iqvia.com/cse/prod/chat-api/api/v1/conversations',
     {
-      messages: [{
-        role: 'user',
-        content: input
-      }],
+      messages: input,
       model: 'dep-cio-openaiebt01-gpt35turbo'
     },
     {

@@ -21,12 +21,12 @@
         const sendButton = document.getElementById('sendButton');
         const clearButton = document.getElementById('clearMessages');
 
-        const serverUrl = 'http://10.230.97.67:8080'; // Change this to your server's URL
+        const serverUrl = 'http://localhost:8080'; // Change this to your server's URL
 
         // Function to add a new message to the messages container
         function addMessage(message) {
             const messageElement = document.createElement('pre');
-            messageElement.textContent = message;
+            messageElement.textContent = message.content;
             messagesContainer.appendChild(messageElement);
         }
 
