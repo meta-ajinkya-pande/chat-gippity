@@ -10,7 +10,9 @@
             white-space: pre-wrap;
         }
 		body {
+            height: 100%;
 		}
+        
 		#chat-container {
 			display: flex;
             width: 80%;
@@ -29,7 +31,7 @@
 			width: 80%;
             flex: 1;
             display: flex;
-            height: 40px;
+            height: 50px;
             position: absolute;
             bottom: 0;
             right: 0;
@@ -42,11 +44,15 @@
 			margin-right: 10px;
 		}
 		#sendButton {
-			height: 100%;
-			padding: 10px;
+			height: 50%;
 			background-color: slategray;
 			color: white;
-			border: none;
+			cursor: pointer;
+		}
+        #clearMessages {
+			height: 50%;
+            margin-left: 10px;            background-color: slategray;
+			color: white;
 			cursor: pointer;
 		}
 		#side-panel {
@@ -60,6 +66,7 @@
             padding: 8px;
             background-color: gray;
 		}
+        
 	</style>
 </head>
 <body>
@@ -74,13 +81,14 @@
         <textarea id="messageInput" placeholder="Type your message here"></textarea>
         <button id="sendButton">Send</button>
         <button id="clearMessages">Clear Content</button>
-
     </div>
 	<div id="side-panel">
         <p>Reserve for side panel settings</p>
 
 		<!-- Side panel content will be displayed here -->
 	</div>
+    
+
     <!-- original gpt
     <div id="chat">
         <div id="messages"></div>
@@ -96,14 +104,17 @@
         const clearButton = document.getElementById('clearMessages');
 
         const serverUrl = 'http://localhost:8080'; // Change this to your server's URL
-
         // Function to add a new message to the messages container
         function addMessage(message) {
+            
             let messageContentArray = message.content.split("```");
             console.log(messageContentArray);
             for(let i=0; i < messageContentArray.length; i++) {
                 if(i%2 == 0) {
                     const messageElement = document.createElement('pre');
+                    if(message.role == "user"){
+                        messageElement.style.color ="blue";
+                    }
                     messageElement.textContent = messageContentArray[i];
                     messagesContainer.appendChild(messageElement);
                 } else {
@@ -114,6 +125,7 @@
                     messagesContainer.appendChild(preElement);
                 }
             }
+         
         }
         
         // Event listener for the send button
